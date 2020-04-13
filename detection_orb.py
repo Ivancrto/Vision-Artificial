@@ -16,7 +16,7 @@ informacion_train = []
 
 
 #1. En primer lugar hará falta programar un bucle que cargue las imágenes de training. 
-def cargarImagen(dateImage):
+def cargar_imagen(dateImage):
     for img in listdir("./train"):
          #1.1 La carga debería realizarse en niveles de gris. Esto se consigue poniendo a 0 el segundo
              #parámetro del comando cv2.imread. 
@@ -29,6 +29,7 @@ detector = cv2.ORB_create(100, 1.1, 1) #keypoints	scaleFactor    nlevels(pirámi
 #CREAMOS un FlannBasedMatcher utilizando la distancia de Hamming
 FLANN_INDEX_LSH = 6
 #En la especificacion de OPENCV, pone los siguientes valores, a lo mejor los tenemos que modificar
+#En las diapositivas del profesor table_number = 6,key_size = 3,multi_probe_level = 1
 index_params= dict(algorithm = FLANN_INDEX_LSH,
                    table_number = 6, # 12
                    key_size = 12,     # 20
@@ -36,11 +37,16 @@ index_params= dict(algorithm = FLANN_INDEX_LSH,
 search_params = dict(checks=-1) # Maximum leafs to visit when searching for neighbours.
 flann = cv2.FlannBasedMatcher(index_params,search_params)
 
+def obtener_informacion():
+    for i in imagenes_train:
+        kp , des =  detector.detectAndCompute(i, None)
+        flann.add(des)
+    
          
 def main():
     print("Clase principal")
-    cargarImagen(imagenes_train)
-    
+    cargar_imagen(imagenes_train)
+    obtener_informacion()
     
 if __name__ == "__main__":
     main()
