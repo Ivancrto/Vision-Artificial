@@ -46,7 +46,6 @@ def obtener_informacion():
     
          
 def main():
-    print("Clase principal")
     cargar_imagen(imagenes_train)
     obtener_informacion()
     
