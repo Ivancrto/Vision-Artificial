@@ -39,7 +39,9 @@ flann = cv2.FlannBasedMatcher(index_params,search_params)
 
 def obtener_informacion():
     for i in imagenes_train:
+        #Obtenmos los keyPoints y los descriptores de la imagen i
         kp , des =  detector.detectAndCompute(i, None)
+        #Creamos el arbol añadiendo los descriptores a FlannBasedMatcher
         flann.add(des)
     
          
