@@ -35,7 +35,6 @@ def monstrar_recuadro(date_image):
             print("Frontal no encontrado en la imagen: " + name_img)
         cv2.imshow(name_img, i[1])
         cv2.waitKey(0)
-        i.release()
         cv2.destroyAllWindows()
         indice += 1
          
