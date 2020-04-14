@@ -13,19 +13,24 @@ import math
 #AQUI CREAMOS TODAS LAS ESTRUCTURAS QUE VAYAMOS A USAR
 imagenes_train = []
 informacion_train = []
-
+imagenes_test = []
 
 
 #1. En primer lugar hará falta programar un bucle que cargue las imágenes de training. 
-def cargar_imagen(dateImage):
-    for img in listdir("./train"):
+def cargar_imagen(dateImage, path):
+    for img in listdir(path):
          #1.1 La carga debería realizarse en niveles de gris. Esto se consigue poniendo a 0 el segundo
              #parámetro del comando cv2.imread. 
         #En la posicion 0 guardo la imagen en niveles de gris y en la posicion 1 la imagen en color original 
-         dateImage.append([cv2.imread("./train/" + img, 0), cv2.imread("./train/" + img)])
+         dateImage.append([cv2.imread( path + "/" + img, 0), cv2.imread( path + "/"+ img)])
+
+
          
 #2. Utilizar la clase cv2.ORB_create para obtener los keypoints y los descriptores de cada imagen. 
 detector = cv2.ORB_create(100, 1.1, 1) #keypoints	scaleFactor    nlevels(pirámide) 
+
+
+
    
 #CREAMOS un FlannBasedMatcher utilizando la distancia de Hamming
 FLANN_INDEX_LSH = 6
@@ -37,6 +42,9 @@ index_params= dict(algorithm = FLANN_INDEX_LSH,
                    multi_probe_level = 1) #2
 search_params = dict(checks=-1) # Maximum leafs to visit when searching for neighbours.
 flann = cv2.FlannBasedMatcher(index_params,search_params)
+
+
+
 
 def obtener_informacion(date_Information, img_train):
     for img in img_train:
@@ -57,11 +65,20 @@ def obtener_informacion(date_Information, img_train):
             date_Information.append([img, distancia_puntos, angulo_kp, des[i1]])
             i1 +=1
        
+
+def procesar_imagen(img_test):
+    print()
+    
+    
     
          
 def main():
-    cargar_imagen(imagenes_train)
+    cargar_imagen(imagenes_train, "./train")
     obtener_informacion(informacion_train, imagenes_train)
+    cargar_imagen(imagenes_test, "./test")
+   
+    
+    
     
 if __name__ == "__main__":
     main()
