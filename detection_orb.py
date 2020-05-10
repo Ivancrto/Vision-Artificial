@@ -81,6 +81,7 @@ def procesar_imagen(img_test, informacion):
                 scaleTrain2 = kpTrain2.size
                 scaleTest2 = kpTest2.size
 
+                # Las coordenadas de los descriptores del entrenamiento
                 coordenadaXtrain1 = info[1][kpTrain1][0]
                 coordenadaYtrain1 = info[1][kpTrain1][1]
                 coordenadaXtrain2 = info[1][kpTrain2][0]
@@ -91,16 +92,16 @@ def procesar_imagen(img_test, informacion):
                 angleTrain2 = math.atan2(coordenadaYtrain2, coordenadaXtrain2)
 
                 # Corregir el angulo segun la formula(sumar el angulo de la rotación del entrenamiento y restar el angulo de la rotación del test)
-                newAngle1 = angleTrain1 + rotTrain1 - rotTest1
-                newAngle2 = angleTrain2 + rotTrain2 - rotTest2
+                newAngle1 = angleTrain1 + rotTest1 - rotTrain1
+                newAngle2 = angleTrain2 + rotTest2 - rotTrain2
 
                 # Tamaño de los vectores
                 distanceTrain1 = np.linalg.norm(info[1][kpTrain1]) * scaleTrain1/scaleTest1
                 distanceTrain2 = np.linalg.norm(info[1][kpTrain2]) * scaleTrain2/scaleTest2
 
                 # Encontrar los x, y escalados y con angulos corregidos
-                y1 = distanceTrain1 * math.sin(newAngle1)
-                x1 = distanceTrain1 * math.cos(newAngle1)
+                x1 = distanceTrain1 * math.sin(newAngle1)
+                y1 = distanceTrain1 * math.cos(newAngle1)
                 x2 = distanceTrain2 * math.sin(newAngle2)
                 y2 = distanceTrain2 * math.cos(newAngle2)
 
@@ -121,8 +122,7 @@ def procesar_imagen(img_test, informacion):
 
         maximoX = max_valores[1] * 10
         maximoY = max_valores[2] * 10
-
-        cv2.circle(test[1], (maximoX, maximoY), 100, (255, 153, 255), 2)
+        cv2.rectangle(test[1], (maximoX - 100, maximoY + 80), (maximoX + 100, maximoY - 80), (255, 153, 255), 2)
         cv2.imshow(test[2], test[1])
         cv2.waitKey()
         cv2.destroyAllWindows()
@@ -137,33 +137,25 @@ def buscar_maximos(votaciones):
     for i in range(0, length1):
         for j in range(0, length2):
             if (i == 0 and j == 0):
-                maxPosible = votaciones[i][j] + votaciones[i + 1][j] + votaciones[i + 2][j] + votaciones[i][j + 1] + \
-                             votaciones[i][j + 2] + votaciones[i + 1][j + 1] + votaciones[i + 2][j + 1] + \
-                             votaciones[i + 1][j + 2] + votaciones[i + 2][j + 2]
+                maxPosible = votaciones[i][j] + votaciones[i + 1][j] + votaciones[i][j + 1] + votaciones[i + 1][j + 1]
+
             elif (j == 0):
                 if (0 < i < (length1 - 1)):
-                    maxPosible = votaciones[i][j] + votaciones[i][j + 1] + votaciones[i][j + 2] + votaciones[i - 1][j] + \
-                                 votaciones[i + 1][j] + votaciones[i - 1][j + 1] + votaciones[i - 1][j + 2] + \
-                                 votaciones[i + 1][j + 1] + votaciones[i + 1][j + 2]
+                    maxPosible = votaciones[i][j] + votaciones[i][j + 1] + votaciones[i - 1][j] + votaciones[i + 1][j]
+
                 elif (i == (length1 - 1)):
-                    maxPosible = votaciones[i][j] + votaciones[i - 2][j] + votaciones[i - 2][j + 1] + votaciones[i - 2][j + 2] + \
-                                 votaciones[i - 1][j] + votaciones[i - 1][j + 1] + votaciones[i - 1][j + 2] + \
-                                 votaciones[i][j + 1] + votaciones[i][j + 2]
+                    maxPosible = votaciones[i][j] + votaciones[i - 1][j] + votaciones[i - 1][j + 1] + votaciones[i][j + 1]
 
             elif (i == 0):
                 if (0 < j < (length2 - 1)):
-                    maxPosible = votaciones[i][j] + votaciones[i][j - 1] + votaciones[i][j + 1] + votaciones[i + 1][j - 1] + \
-                                 votaciones[i + 1][j] + votaciones[i + 1][j + 1] + votaciones[i + 2][j - 1] + \
-                                 votaciones[i + 2][j] + votaciones[i + 2][j + 1]
+                    maxPosible = votaciones[i][j] + votaciones[i][j - 1] + votaciones[i][j + 1] + votaciones[i + 1][j]
 
                 elif (j == (length2 - 1)):
-                    maxPosible = votaciones[i][j] + votaciones[i][j - 2] + votaciones[i][j - 1] + votaciones[i + 1][j - 2] + \
-                                 votaciones[i + 1][j - 1] + votaciones[i + 1][j] + votaciones[i + 2][j - 2] + \
-                                 votaciones[i + 2][j - 1] + votaciones[i + 2][j]
+                    maxPosible = votaciones[i][j] + votaciones[i][j - 1] + votaciones[i + 1][j - 1] + votaciones[i + 1][j]
 
             elif (j == (length2 - 1)) and (0 < i < (length1 - 1)):
-                maxPosible = votaciones[i][j] + votaciones[i - 1][j - 2] + votaciones[i - 1][j - 1] + votaciones[i - 1][j] + \
-                             votaciones[i][j - 2] + votaciones[i][j - 1] + votaciones[i + 1][j - 2] + votaciones[i + 1][j - 1] + votaciones[i + 1][j]
+                maxPosible = votaciones[i][j] + votaciones[i - 1][j - 1] + votaciones[i - 1][j] + \
+                             votaciones[i][j - 1] + votaciones[i + 1][j - 1] + votaciones[i + 1][j]
 
             elif (i == (length1 - 1)) and (0 < j < (length2 - 1)):
                 maxPosible = votaciones[i][j] + votaciones[i - 2][j - 1] + votaciones[i - 2][j] + votaciones[i - 2][j + 1] + \
