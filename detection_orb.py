@@ -136,26 +136,30 @@ def buscar_maximos(votaciones):
     # Se busca los 8 maximos mas cercanos
     for i in range(0, length1):
         for j in range(0, length2):
-            if (i == 0 and j == 0):
-                maxPosible = votaciones[i][j] + votaciones[i + 1][j] + votaciones[i][j + 1] + votaciones[i + 1][j + 1]
-
+             if (i == 0 and j == 0):
+                maxPosible = votaciones[i][j] + votaciones[i + 1][j] + votaciones[i + 2][j] + votaciones[i][j + 1] + votaciones[i][j + 2] + votaciones[i + 1][j + 1] + \
+                             votaciones[i + 2][j + 1] + votaciones[i + 1][j + 2] + votaciones[i + 2][j + 2]
             elif (j == 0):
                 if (0 < i < (length1 - 1)):
-                    maxPosible = votaciones[i][j] + votaciones[i][j + 1] + votaciones[i - 1][j] + votaciones[i + 1][j]
-
+                    maxPosible = votaciones[i][j] + votaciones[i][j + 1] + votaciones[i][j + 2] + votaciones[i - 1][j] + \
+                                 votaciones[i + 1][j] + votaciones[i - 1][j + 1] + votaciones[i - 1][j + 2] +\
+                                 votaciones[i + 1][j + 1] + votaciones[i + 1][j + 2]
                 elif (i == (length1 - 1)):
-                    maxPosible = votaciones[i][j] + votaciones[i - 1][j] + votaciones[i - 1][j + 1] + votaciones[i][j + 1]
+                    maxPosible = votaciones[i][j] + votaciones[i - 2][j] + votaciones[i - 2][j + 1] + votaciones[i - 2][j + 2] + \
+                                 votaciones[i - 1][j] + votaciones[i - 1][j + 1] + votaciones[i - 1][j + 2] + votaciones[i][j + 1] + votaciones[i][j + 2]
 
             elif (i == 0):
                 if (0 < j < (length2 - 1)):
-                    maxPosible = votaciones[i][j] + votaciones[i][j - 1] + votaciones[i][j + 1] + votaciones[i + 1][j]
+                    maxPosible = votaciones[i][j] + votaciones[i][j - 1] + votaciones[i][j + 1] + votaciones[i + 1][j - 1] + \
+                                 votaciones[i + 1][j] + votaciones[i + 1][j + 1] + votaciones[i + 2][j - 1] + votaciones[i + 2][j] + votaciones[i + 2][j + 1]
 
                 elif (j == (length2 - 1)):
-                    maxPosible = votaciones[i][j] + votaciones[i][j - 1] + votaciones[i + 1][j - 1] + votaciones[i + 1][j]
+                    maxPosible = votaciones[i][j] + votaciones[i][j - 2] + votaciones[i][j - 1] + votaciones[i + 1][j - 2] + \
+                                votaciones[i + 1][j - 1] + votaciones[i + 1][j] + votaciones[i + 2][j - 2] + votaciones[i + 2][j - 1] + votaciones[i + 2][j]
 
             elif (j == (length2 - 1)) and (0 < i < (length1 - 1)):
-                maxPosible = votaciones[i][j] + votaciones[i - 1][j - 1] + votaciones[i - 1][j] + \
-                             votaciones[i][j - 1] + votaciones[i + 1][j - 1] + votaciones[i + 1][j]
+                maxPosible = votaciones[i][j] + votaciones[i - 1][j - 2] + votaciones[i - 1][j - 1] + votaciones[i - 1][j] + \
+                             votaciones[i][j - 2] + votaciones[i][j - 1] + votaciones[i + 1][j - 2] + votaciones[i + 1][j - 1] + votaciones[i + 1][j]
 
             elif (i == (length1 - 1)) and (0 < j < (length2 - 1)):
                 maxPosible = votaciones[i][j] + votaciones[i - 2][j - 1] + votaciones[i - 2][j] + votaciones[i - 2][j + 1] + \
@@ -168,7 +172,7 @@ def buscar_maximos(votaciones):
             else:
                 maxPosible = votaciones[i][j] + votaciones[i - 1][j - 1] + votaciones[i - 1][j] + votaciones[i - 1][j + 1] + \
                              votaciones[i][j - 1] + votaciones[i][j + 1] + votaciones[i + 1][j - 1] + votaciones[i + 1][j] + votaciones[i + 1][j + 1]
-
+                
             aux = np.max(votaciones);
             if maxPosible >= maximo:
                 maximo = maxPosible
