@@ -45,8 +45,8 @@ def obtener_informacion(img_train):
         for k in kp:
             # Creamos el arbol añadiendo los descriptores a FlannBasedMatcher
             flann.add(des)
+            # Distancia al centro de la imagen
             distancia_puntos[k] = [(corX - k.pt[0]), (corY - k.pt[1])]
-        # DISTANCIA ANGLE DESCRIPTOR SIZE(FALTA)
         train_information.append([img, distancia_puntos, kp, des])
     return train_information
 
@@ -122,7 +122,9 @@ def procesar_imagen(img_test, informacion):
 
         maximoX = max_valores[1] * 10
         maximoY = max_valores[2] * 10
-        cv2.rectangle(test[1], (maximoX - 100, maximoY + 80), (maximoX + 100, maximoY - 80), (255, 153, 255), 2)
+
+        #Dibujar un cuadro en el centro encontrado del coche
+        cv2.rectangle(test[1], (maximoX - math.trunc(test[1].shape[0]/4), maximoY + math.trunc(test[1].shape[1]/10)), (maximoX + math.trunc(test[1].shape[0]/4), maximoY - math.trunc(test[1].shape[1]/10)), (100, 255, 200), 2)
         cv2.imshow(test[2], test[1])
         cv2.waitKey()
         cv2.destroyAllWindows()
@@ -133,46 +135,52 @@ def buscar_maximos(votaciones):
     maximo = -1;
     length1 = votaciones.shape[0]
     length2 = votaciones.shape[1]
-    # Se busca los 8 maximos mas cercanos
+
+    # Se busca los 5-8 maximos mas cercanos
     for i in range(0, length1):
         for j in range(0, length2):
+
+            # Si estamos en la primera posicion de la matriz de votacion
             if (i == 0 and j == 0):
-                maxPosible = votaciones[i][j] + votaciones[i + 1][j] + votaciones[i + 2][j] + votaciones[i][j + 1] + \
-                             votaciones[i][j + 2] + votaciones[i + 1][j + 1] + \
-                             votaciones[i + 2][j + 1] + votaciones[i + 1][j + 2] + votaciones[i + 2][j + 2]
+                maxPosible = votaciones[i][j] + votaciones[i + 1][j] + votaciones[i][j + 1] + votaciones[i + 1][j + 1]
+
             elif (j == 0):
+
+                # Si estamos en la primera columna y en las filas interiores de la matriz de votacion
                 if (0 < i < (length1 - 1)):
-                    maxPosible = votaciones[i][j] + votaciones[i][j + 1] + votaciones[i][j + 2] + votaciones[i - 1][j] + \
-                                 votaciones[i + 1][j] + votaciones[i - 1][j + 1] + votaciones[i - 1][j + 2] + \
-                                 votaciones[i + 1][j + 1] + votaciones[i + 1][j + 2]
+                    maxPosible = votaciones[i][j] + votaciones[i][j + 1] + votaciones[i - 1][j] + \
+                                 votaciones[i + 1][j] + votaciones[i - 1][j + 1] + votaciones[i + 1][j + 1]
+
+                # Si estamos en la primera columna y en la ultima fila de la matriz de votacion
                 elif (i == (length1 - 1)):
-                    maxPosible = votaciones[i][j] + votaciones[i - 2][j] + votaciones[i - 2][j + 1] + votaciones[i - 2][j + 2] + \
-                                 votaciones[i - 1][j] + votaciones[i - 1][j + 1] + votaciones[i - 1][j + 2] + \
-                                 votaciones[i][j + 1] + votaciones[i][j + 2]
+                    maxPosible = votaciones[i][j] + votaciones[i - 1][j] + votaciones[i - 1][j + 1] + votaciones[i][j + 1]
 
             elif (i == 0):
+
+                # Si estamos en la primera fila y en las columnas interiores de la matriz de votacion
                 if (0 < j < (length2 - 1)):
-                    maxPosible = votaciones[i][j] + votaciones[i][j - 1] + votaciones[i][j + 1] + votaciones[i + 1][j - 1] + \
-                                 votaciones[i + 1][j] + votaciones[i + 1][j + 1] + votaciones[i + 2][j - 1] + \
-                                 votaciones[i + 2][j] + votaciones[i + 2][j + 1]
+                    maxPosible = votaciones[i][j] + votaciones[i][j - 1] + votaciones[i][j + 1] + \
+                                 votaciones[i + 1][j - 1] + votaciones[i + 1][j] + votaciones[i + 1][j + 1]
 
+                # Si estamos en la primera fila y en la ultima columna de la matriz de votacion
                 elif (j == (length2 - 1)):
-                    maxPosible = votaciones[i][j] + votaciones[i][j - 2] + votaciones[i][j - 1] + votaciones[i + 1][j - 2] + \
-                                 votaciones[i + 1][j - 1] + votaciones[i + 1][j] + votaciones[i + 2][j - 2] + \
-                                 votaciones[i + 2][j - 1] + votaciones[i + 2][j]
+                    maxPosible = votaciones[i][j] + votaciones[i][j - 1] + votaciones[i + 1][j - 1] + votaciones[i + 1][j]
 
+            # Si estamos en las filas interiores y en la ultima columna de la matriz de votacion
             elif (j == (length2 - 1)) and (0 < i < (length1 - 1)):
-                maxPosible = votaciones[i][j] + votaciones[i - 1][j - 2] + votaciones[i - 1][j - 1] + votaciones[i - 1][j] + \
-                             votaciones[i][j - 2] + votaciones[i][j - 1] + votaciones[i + 1][j - 2] + votaciones[i + 1][j - 1] + votaciones[i + 1][j]
+                maxPosible = votaciones[i][j] + votaciones[i - 1][j - 1] + votaciones[i - 1][j] + \
+                             votaciones[i][j - 1] + votaciones[i + 1][j - 1] + votaciones[i + 1][j]
 
+            # Si estamos en las columnas interiores y en la ultima fila de la matriz de votacion
             elif (i == (length1 - 1)) and (0 < j < (length2 - 1)):
-                maxPosible = votaciones[i][j] + votaciones[i - 2][j - 1] + votaciones[i - 2][j] + votaciones[i - 2][j + 1] + \
-                             votaciones[i - 1][j - 1] + votaciones[i - 1][j] + votaciones[i - 1][j + 1] + votaciones[i][j - 1] + votaciones[i][j + 1]
+                maxPosible = votaciones[i][j] + votaciones[i - 1][j - 1] + votaciones[i - 1][j] + \
+                             votaciones[i - 1][j + 1] + votaciones[i][j - 1] + votaciones[i][j + 1]
 
+            # Si estamos en la ultima fila y en la ultima columna de la matriz de votacion
             elif (i == (length1 - 1)) and (j == (length2 - 1)):
-                maxPosible = votaciones[i][j] + votaciones[i - 2][j - 2] + votaciones[i - 2][j - 1] + votaciones[i - 2][j] + \
-                             votaciones[i - 1][j - 2] + votaciones[i - 1][j - 1] + votaciones[i - 1][j] + votaciones[i][j - 2] + votaciones[i][j - 1]
+                maxPosible = votaciones[i][j] + votaciones[i - 1][j - 1] + votaciones[i - 1][j] + votaciones[i][j - 1]
 
+            # Si estamos en las filas interiores y en las columnas interiores de la matriz de votacion
             else:
                 maxPosible = votaciones[i][j] + votaciones[i - 1][j - 1] + votaciones[i - 1][j] + votaciones[i - 1][j + 1] + \
                              votaciones[i][j - 1] + votaciones[i][j + 1] + votaciones[i + 1][j - 1] + votaciones[i + 1][j] + votaciones[i + 1][j + 1]
