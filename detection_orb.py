@@ -70,10 +70,10 @@ def procesar_imagen(img_test, informacion):
                 kpTrain2 = kpTrain[m2.trainIdx]
 
                 # Angulos de la rotación de los descriptores en radianes
-                rotTest1 = (kpTest1.angle * 2 * np.pi) / 360
-                rotTest2 = (kpTest2.angle * 2 * np.pi) / 360
-                rotTrain1 = (kpTrain1.angle * 2 * np.pi) / 360
-                rotTrain2 = (kpTrain2.angle * 2 * np.pi) / 360
+                rotTest1 = np.radians(kpTest1.angle)
+                rotTest2 = np.radians(kpTest2.angle)
+                rotTrain1 = np.radians(kpTrain1.angle)
+                rotTrain2 = np.radians(kpTrain2.angle)
 
                 # Tamaños de los descriptores
                 scaleTrain1 = kpTrain1.size
@@ -91,25 +91,33 @@ def procesar_imagen(img_test, informacion):
                 angleTrain1 = math.atan2(coordenadaYtrain1, coordenadaXtrain1)
                 angleTrain2 = math.atan2(coordenadaYtrain2, coordenadaXtrain2)
 
+                # Las coordenadas escaladas
+                coordenadaXtrainEsc1 = kpTest1.pt[0] + coordenadaXtrain1 * scaleTest1/scaleTrain1
+                coordenadaYtrainEsc1 = kpTest1.pt[1] + coordenadaYtrain1 * scaleTest1/scaleTrain1
+                coordenadaXtrainEsc2 = kpTest2.pt[0] + coordenadaXtrain2 * scaleTest2/scaleTrain2
+                coordenadaYtrainEsc2 = kpTest2.pt[1] + coordenadaYtrain2 * scaleTest2/scaleTrain2
+
+                # Crear el vector nuevo escalado
+                vector1 = np.array([[coordenadaXtrainEsc1], [coordenadaYtrainEsc1]])
+                vector2 = np.array([[coordenadaXtrainEsc2], [coordenadaYtrainEsc2]])
+
                 # Corregir el angulo segun la formula(sumar el angulo de la rotación del entrenamiento y restar el angulo de la rotación del test)
                 newAngle1 = angleTrain1 + rotTest1 - rotTrain1
                 newAngle2 = angleTrain2 + rotTest2 - rotTrain2
 
-                # Tamaño de los vectores
-                distanceTrain1 = np.linalg.norm(info[1][kpTrain1]) * scaleTrain1/scaleTest1
-                distanceTrain2 = np.linalg.norm(info[1][kpTrain2]) * scaleTrain2/scaleTest2
+                # Crear matriz de rotacion segun los angulos nuevos corregidos
+                R1 = np.array([[np.cos(newAngle1), -np.sin(newAngle1)], [np.sin(newAngle1), np.cos(newAngle1)]])
+                R2 = np.array([[np.cos(newAngle2), -np.sin(newAngle2)], [np.sin(newAngle2), np.cos(newAngle2)]])
 
-                # Encontrar los x, y escalados y con angulos corregidos
-                x1 = distanceTrain1 * math.sin(newAngle1)
-                y1 = distanceTrain1 * math.cos(newAngle1)
-                x2 = distanceTrain2 * math.sin(newAngle2)
-                y2 = distanceTrain2 * math.cos(newAngle2)
+                # Multiplicar el matriz de rotacion por las coordenadas escaladas
+                newVector1 = np.dot(R1, vector1)
+                newVector2 = np.dot(R2, vector2)
 
-                # Encontrar las coordenadas nuevas sumando a las coordenadas anteriores de los keypoints del test
-                newX1 = math.trunc((x1 + kpTest1.pt[0])/10)
-                newX2 = math.trunc((x2 + kpTest2.pt[0])/10)
-                newY1 = math.trunc((y1 + kpTest1.pt[1])/10)
-                newY2 = math.trunc((y2 + kpTest2.pt[1])/10)
+                # Reducir la resolucion dividiendo entre 10 y encontrar las nuevas coordenadas del vector nuevo
+                newX1 = math.trunc(newVector1[0][0]/10)
+                newX2 = math.trunc(newVector2[0][0]/10)
+                newY1 = math.trunc(newVector1[1][0]/10)
+                newY2 = math.trunc(newVector2[1][0]/10)
 
                 # Rellenar la matriz de votación
                 if newX1 > 0 and newX1 < math.trunc(test[0].shape[0] / 10) and newY1 > 0 and newY1 < math.trunc(test[0].shape[1] / 10):
@@ -120,8 +128,8 @@ def procesar_imagen(img_test, informacion):
         # Buscar los maximos en la matriz de votación
         max_valores = buscar_maximos(votos)
 
-        maximoX = max_valores[1] * 10
-        maximoY = max_valores[2] * 10
+        maximoX = max_valores[0] * 10
+        maximoY = max_valores[1] * 10
 
         #Dibujar un cuadro en el centro encontrado del coche
         cv2.rectangle(test[1], (maximoX - math.trunc(test[1].shape[0]/4), maximoY + math.trunc(test[1].shape[1]/10)), (maximoX + math.trunc(test[1].shape[0]/4), maximoY - math.trunc(test[1].shape[1]/10)), (100, 255, 200), 2)
@@ -129,14 +137,13 @@ def procesar_imagen(img_test, informacion):
         cv2.waitKey()
         cv2.destroyAllWindows()
 
-
 def buscar_maximos(votaciones):
     maxPosible = 0;
     maximo = -1;
     length1 = votaciones.shape[0]
     length2 = votaciones.shape[1]
 
-    # Se busca los 5-8 maximos mas cercanos
+    # Se busca los 4-8 maximos mas cercanos
     for i in range(0, length1):
         for j in range(0, length2):
 
@@ -196,7 +203,7 @@ def buscar_maximos(votaciones):
                 maximoX = i
                 maximoY = j
 
-    return maximo, maximoX, maximoY
+    return maximoX, maximoY
 
 
 def main():
